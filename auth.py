@@ -1,13 +1,15 @@
-from datetime import datetime, timedelta # timedelta add kiya
+from datetime import datetime, timedelta
+import os # timedelta add kiya
 import bcrypt
 from jose import jwt, JWTError
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from database import users_col, RegisterUser, LoginUser
 
+
 router = APIRouter()
 security = HTTPBearer()
-SECRET_KEY = "mysecretkey"
+SECRET_KEY = os.environ.get("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 3 # Token 1 din tak chalega
 
