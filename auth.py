@@ -9,7 +9,7 @@ router = APIRouter()
 security = HTTPBearer()
 SECRET_KEY = "mysecretkey"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_HOURS = 24 # Token 1 din tak chalega
+ACCESS_TOKEN_EXPIRE_HOURS = 3 # Token 1 din tak chalega
 
 # Token verify karne ka helper function
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
