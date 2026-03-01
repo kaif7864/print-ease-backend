@@ -28,28 +28,45 @@ def register(user: RegisterUser):
         raise HTTPException(status_code=400, detail="User already exists")
     hashed_pw = bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt())
     users_col.insert_one({
-        "name": user.name, "email": user.email, "password": hashed_pw,
-        "phone": user.phone, "address": user.address, "created_at": datetime.now()
+        "name": user.name,
+          "email": user.email,
+            "password": hashed_pw,
+        "phone": user.phone,
+          "address": user.address,
+          "role": "user",
+            "created_at": datetime.now()
     })
     return {"message": "User registered successfully"}
-
 @router.post("/login")
 def login(user: LoginUser):
     db_user = users_col.find_one({"email": user.email})
+
     if not db_user or not bcrypt.checkpw(user.password.encode("utf-8"), db_user["password"]):
         raise HTTPException(status_code=400, detail="Invalid email or password")
-    
-    # Expiry time set karna (24 hours from now)
+
+    # Expiry time (24 hours)
     access_token_expires = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
-    
-    # Token mein 'exp' claim add karna zaroori hai
+
+    # 🔥 Role nikal lo (agar role field nahi ho to default user)
+    user_role = db_user.get("role", "user")
+
+    # 🔐 Token data
     token_data = {
-        "email": user.email,
-        "exp": access_token_expires 
+        "email": db_user["email"],
+        "role": user_role,  # 👈 role add kiya
+        "exp": access_token_expires
     }
-    
+
     token = jwt.encode(token_data, SECRET_KEY, algorithm=ALGORITHM)
-    return {"access_token": token}
+
+    return {
+        "access_token": token,
+        "user_data": {
+            "email": db_user["email"],
+            "name": db_user.get("name"),
+            "role": user_role   # 👈 frontend ke liye
+        }
+    }
 
 # --- YEH NAYA ROUTE HAI FRONTEND REFRESH KE LIYE ---
 @router.get("/profile")

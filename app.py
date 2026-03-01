@@ -5,7 +5,11 @@ from fastapi.staticfiles import StaticFiles # Static files ke liye
 import auth
 import orders
 
+from admin import router as admin_router
+
 app = FastAPI(title="PrintEase API")
+
+app.include_router(admin_router, prefix="/admin", tags=["Admin"])
 
 # --- CORS Configuration ---
 # Isse frontend (React) aur backend (FastAPI) aapas mein baat kar payenge
@@ -14,7 +18,7 @@ app.add_middleware(
     allow_origins=["*"], # Production mein ise frontend URL se replace karein
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 # --- Uploads Folder Setup ---
